@@ -67,10 +67,10 @@ The Platform Layer sits above all individual influencers. It manages the fleet.
 ```mermaid
 flowchart TD
     PL["PLATFORM LAYER"]
-    IF["Influencer Factory\n(creates & retires influencers)"]
-    IR["Influencer Registry\n(tracks all active influencers)"]
-    GCFO["Global CFO Agent\n(budget across all influencers)"]
-    GS["Global Scheduler\n(staggered posting times)"]
+    IF["Influencer Factory<br/>(creates & retires influencers)"]
+    IR["Influencer Registry<br/>(tracks all active influencers)"]
+    GCFO["Global CFO Agent<br/>(budget across all influencers)"]
+    GS["Global Scheduler<br/>(staggered posting times)"]
 
     PL --> IF
     PL --> IR
@@ -84,7 +84,7 @@ Each influencer runs two completely independent systems that share one identity 
 
 ```mermaid
 flowchart TD
-    SOUL["SOUL.md\n(Shared Identity — Read Only)"]
+    SOUL["SOUL.md<br/>(Shared Identity — Read Only)"]
 
     subgraph CONTENT["🎬 Content Pipeline (Campaign-Driven)"]
         MO["Master Orchestrator"]
@@ -108,31 +108,31 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    MO["MASTER ORCHESTRATOR\n• Receives campaigns\n• Health monitoring\n• Restarts crashed orchestrators"]
-    CO["CAMPAIGN ORCHESTRATOR\n• Breaks campaign into steps\n• Spawns one Planner per step\n• Hands off to Manager"]
-    CM["CAMPAIGN MANAGER\n• Creates & locks Creative Brief\n• Tracks Worker status via Redis\n• Controls budget\n• Activates Compiler"]
-    CB["CREATIVE BRIEF\nLocked. Read-only. Shared by all Workers."]
+    MO["MASTER ORCHESTRATOR<br/>• Receives campaigns<br/>• Health monitoring<br/>• Restarts crashed orchestrators"]
+    CO["CAMPAIGN ORCHESTRATOR<br/>• Breaks campaign into steps<br/>• Spawns one Planner per step<br/>• Hands off to Manager"]
+    CM["CAMPAIGN MANAGER<br/>• Creates & locks Creative Brief<br/>• Tracks Worker status via Redis<br/>• Controls budget<br/>• Activates Compiler"]
+    CB["CREATIVE BRIEF<br/>Locked. Read-only. Shared by all Workers."]
 
     subgraph PARALLEL["Parallel Planner Threads"]
-        PA["Planner A\nStep 1"]
-        PB["Planner B\nStep 2"]
-        PC["Planner C\nStep 3"]
+        PA["Planner A<br/>Step 1"]
+        PB["Planner B<br/>Step 2"]
+        PC["Planner C<br/>Step 3"]
         PJA["Planner Judge A"]
         PJB["Planner Judge B"]
         PJC["Planner Judge C"]
-        WPA["Worker Pool A\nW1 W2 W3"]
-        WPB["Worker Pool B\nW1 W2 W3"]
-        WPC["Worker Pool C\nW1 W2 W3"]
+        WPA["Worker Pool A<br/>W1 W2 W3"]
+        WPB["Worker Pool B<br/>W1 W2 W3"]
+        WPC["Worker Pool C<br/>W1 W2 W3"]
         WJA["Worker Judges A"]
         WJB["Worker Judges B"]
         WJC["Worker Judges C"]
     end
 
-    REDIS["REDIS REGISTRY\nW1 → APPROVED \nW2 → APPROVED \nW3 → RETRYING \nW4 → FAILED "]
-    HC1["HUMAN CHECKPOINT 1\nReview worker outputs\nAPPROVE / REJECT / EDIT"]
-    COMP["COMPILER AGENT\nReads all approved .md files\nAssembles final post"]
-    CJ["COMPILER JUDGE\nCoherent? Matches Brief? Safe?"]
-    HC2["HUMAN CHECKPOINT 2\nFinal review\nAPPROVE / EDIT / REJECT"]
+    REDIS["REDIS REGISTRY<br/>W1 → APPROVED <br/>W2 → APPROVED <br/>W3 → RETRYING <br/>W4 → FAILED "]
+    HC1["HUMAN CHECKPOINT 1<br/>Review worker outputs<br/>APPROVE / REJECT / EDIT"]
+    COMP["COMPILER AGENT<br/>Reads all approved .md files<br/>Assembles final post"]
+    CJ["COMPILER JUDGE<br/>Coherent? Matches Brief? Safe?"]
+    HC2["HUMAN CHECKPOINT 2<br/>Final review<br/>APPROVE / EDIT / REJECT"]
     PUB["PUBLISHED"]
 
     MO --> CO --> CM --> CB
@@ -151,14 +151,14 @@ Runs independently from the Content Pipeline. Never blocked by campaigns.
 
 ```mermaid
 flowchart TD
-    SM["SOCIAL PLATFORM\nComments arriving 24/7"]
-    PER["PERCEPTION AGENT\n• Reads mentions & comments\n• Filters spam\n• Scores relevance (threshold: 0.75)"]
-    PQ["PRIORITY QUEUE\nP1: Direct questions → reply fast\nP2: Compliments → reply within hours\nP3: Mentions → reply within 24hrs\nP4: Spam → IGNORE"]
-    EPLANNER["ENGAGEMENT PLANNER\n• Categorises comment\n• Decides response strategy\n• Flags sensitive content"]
-    EW["ENGAGEMENT WORKER\n• Reads SOUL.md\n• Reads Redis (recent history)\n• Reads Weaviate (long-term memory)\n• Drafts reply in influencer's voice"]
-    EJ["ENGAGEMENT JUDGE\n• On brand?\n• Safe?\n• No legal/political risk?"]
+    SM["SOCIAL PLATFORM<br/>Comments arriving 24/7"]
+    PER["PERCEPTION AGENT<br/>• Reads mentions & comments<br/>• Filters spam<br/>• Scores relevance (threshold: 0.75)"]
+    PQ["PRIORITY QUEUE<br/>P1: Direct questions → reply fast<br/>P2: Compliments → reply within hours<br/>P3: Mentions → reply within 24hrs<br/>P4: Spam → IGNORE"]
+    EPLANNER["ENGAGEMENT PLANNER<br/>• Categorises comment<br/>• Decides response strategy<br/>• Flags sensitive content"]
+    EW["ENGAGEMENT WORKER<br/>• Reads SOUL.md<br/>• Reads Redis (recent history)<br/>• Reads Weaviate (long-term memory)<br/>• Drafts reply in influencer's voice"]
+    EJ["ENGAGEMENT JUDGE<br/>• On brand?<br/>• Safe?<br/>• No legal/political risk?"]
     REPLY["REPLY POSTED"]
-    HUMAN["HUMAN REVIEW\nSensitive / Legal / High-profile"]
+    HUMAN["HUMAN REVIEW<br/>Sensitive / Legal / High-profile"]
 
     SM --> PER --> PQ --> EPLANNER --> EW --> EJ
     EJ -->|APPROVE| REPLY
@@ -177,10 +177,10 @@ Humans do not run the system. They **govern** it. The system operates autonomous
 
 ```mermaid
 flowchart LR
-    T0["TOUCHPOINT 0\nCampaign Intake\nHuman defines goals\nBefore anything starts"]
-    T1["TOUCHPOINT 1\nPre-Compiler Review\nHuman reviews worker outputs\nBefore expensive compilation"]
-    T2["TOUCHPOINT 2\nFinal Approval\nHuman approves final post\nBefore publishing"]
-    T3["ESCALATION\nAnytime\nJudge flags sensitive content\nImmediate human intervention"]
+    T0["TOUCHPOINT 0<br/>Campaign Intake<br/>Human defines goals<br/>Before anything starts"]
+    T1["TOUCHPOINT 1<br/>Pre-Compiler Review<br/>Human reviews worker outputs<br/>Before expensive compilation"]
+    T2["TOUCHPOINT 2<br/>Final Approval<br/>Human approves final post<br/>Before publishing"]
+    T3["ESCALATION<br/>Anytime<br/>Judge flags sensitive content<br/>Immediate human intervention"]
 
     T0 --> T1 --> T2
     T3 -.->|triggered anytime| T2
@@ -245,9 +245,9 @@ MongoDB stores each as a flexible document. No empty columns. No schema migratio
 ```mermaid
 flowchart LR
     subgraph MONGO["MongoDB — Video Metadata"]
-        V1["Video Doc 1\ntitle, tags, views\ntranscript, sentiment"]
-        V2["Video Doc 2\ntitle, tags, views\nduration, audio"]
-        V3["Video Doc 3\ntitle, tags, views\nstyle_lora, character_ref"]
+        V1["Video Doc 1<br/>title, tags, views<br/>transcript, sentiment"]
+        V2["Video Doc 2<br/>title, tags, views<br/>duration, audio"]
+        V3["Video Doc 3<br/>title, tags, views<br/>style_lora, character_ref"]
     end
 
     subgraph REDIS["Redis — Live Data"]
@@ -306,11 +306,11 @@ flowchart TD
     WF -->|Retry 1-2-3| RETRY["Retry"]
     RETRY -->|Still fails| HC1["Human Checkpoint 1"]
 
-    MF --> MO["Master Orchestrator\nDetects via heartbeat\nRestarts Manager\nRecovers state from Redis"]
+    MF --> MO["Master Orchestrator<br/>Detects via heartbeat<br/>Restarts Manager<br/>Recovers state from Redis"]
 
-    BF --> CFO["Global CFO Agent\nBlocks ALL Workers\nFlags for human"]
+    BF --> CFO["Global CFO Agent<br/>Blocks ALL Workers<br/>Flags for human"]
 
-    SF --> EJ["Engagement Judge\nEscalates immediately\nHuman handles it"]
+    SF --> EJ["Engagement Judge<br/>Escalates immediately<br/>Human handles it"]
 ```
 
 ---
