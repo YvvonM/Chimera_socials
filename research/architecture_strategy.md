@@ -50,6 +50,7 @@ flowchart LR
     J -->|APPROVE| NEXT[Next Step]
     J -->|REJECT| W
     J -->|ESCALATE| H[Human]
+```
 
 
 - **Planner**: Thinks and strategises. Breaks goals into tasks.
