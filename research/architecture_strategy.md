@@ -1,13 +1,12 @@
 # Project Chimera — Architecture Strategy
-**Document:** `research/architecture_strategy.md`  
-**Author:** Forward Deployed Engineer  
-**Version:** 1.0
+**Document:** `architecture_strategy.md`  
+
 
 ---
 
 ## 1. Executive Summary
 
-Project Chimera is a platform that manufactures and operates thousands of Autonomous AI Influencers simultaneously. Each influencer researches trends, generates content, manages social media engagement, and participates in commerce.
+Project Chimera is a platform that manufactures and operates thousands of Autonomous AI Influencers simultaneously. Each influencer researches trends, generates content, manages social media engagement and participates in commerce.
 
 This document defines:
 - The Agent Pattern chosen and why
@@ -46,16 +45,16 @@ Every campaign thread runs on three specialised roles:
 
 ```mermaid
 flowchart LR
-    P[Planner\nStrategist] --> W[Worker\nExecutor]
-    W --> J[Judge\nGatekeeper]
+    P[Planner\\nStrategist] --> W[Worker\\nExecutor]
+    W --> J[Judge\\nGatekeeper]
     J -->|APPROVE| NEXT[Next Step]
     J -->|REJECT| W
     J -->|ESCALATE| H[Human]
 ```
 
-- **Planner** — Thinks and strategises. Breaks goals into tasks.
-- **Worker** — Executes one atomic task with maximum speed.
-- **Judge** — Reviews output. Has absolute authority to approve, reject, or escalate.
+- **Planner**: Thinks and strategises. Breaks goals into tasks.
+- **Worker**: Executes one atomic task with maximum speed.
+- **Judge**: Reviews output. Has absolute authority to approve, reject, or escalate.
 
 ---
 
