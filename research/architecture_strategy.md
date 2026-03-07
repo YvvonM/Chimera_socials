@@ -45,8 +45,8 @@ Every campaign thread runs on three specialised roles:
 
 ```mermaid
 flowchart LR
-    P[Planner<br/>Strategist] --> W[Worker<br/>Executor]
-    W --> J[Judge<br/>Gatekeeper]
+    P["Planner<br/>Strategist"] --> W["Worker<br/>Executor"]
+    W --> J["Judge<br/>Gatekeeper"]
     J -->|APPROVE| NEXT[Next Step]
     J -->|REJECT| W
     J -->|ESCALATE| H[Human]
