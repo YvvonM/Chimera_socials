@@ -87,7 +87,7 @@ Each influencer runs two completely independent systems that share one identity 
 flowchart TD
     SOUL["SOUL.md<br/>(Shared Identity — Read Only)"]
 
-    subgraph CONTENT["🎬 Content Pipeline (Campaign-Driven)"]
+    subgraph CONTENT["Content Pipeline (Campaign-Driven)"]
         MO["Master Orchestrator"]
         CO["Campaign Orchestrator"]
         CM["Campaign Manager"]
@@ -189,9 +189,9 @@ flowchart LR
 
 | Touchpoint | When | Human Action | Cost of Getting it Wrong |
 |---|---|---|---|
-| **0 — Campaign Intake** | Before pipeline starts | Define goals, tone, budget | None — nothing has run yet |
-| **1 — Pre-Compiler** | After all Workers approved | Approve / Reject / Edit outputs | Low — just redo specific Workers |
-| **2 — Final Approval** | After Compiler Judge approves | Approve / Edit / Reject final post | Medium — redo compilation |
+| **0 - Campaign Intake** | Before pipeline starts | Define goals, tone, budget | None - nothing has run yet |
+| **1 - Pre-Compiler** | After all Workers approved | Approve / Reject / Edit outputs | Low - just redo specific Workers |
+| **2 - Final Approval** | After Compiler Judge approves | Approve / Edit / Reject final post | Medium - redo compilation |
 | **Escalation** | Anytime, triggered by Judge | Handle sensitive content | Prevents brand/legal damage |
 
 ### 4.3 Escalation Triggers — What Always Goes to a Human
