@@ -219,6 +219,16 @@ This document defines the technical contracts that govern Project Chimera. It co
 **Linked Story:** User_Story-007
 **Direction:** Output -> GlobalState
 
+**Input:**
+```json
+{
+  "influencer_id": "string (required)",
+  "niche": "string (required)",
+  "region": "string (required)",
+  "timeframe_hours": "integer (default: 4)",
+  "cluster_threshold": "integer (default: 3)"
+}
+
 **Output:**
 ```json
 {
@@ -356,6 +366,7 @@ This document defines the technical contracts that govern Project Chimera. It co
     "video_url": "string (optional)",
     "hashtags": ["string (optional)"]
   },
+
   "dry_run": "boolean (default: false)"
 }
 ```
@@ -367,6 +378,7 @@ This document defines the technical contracts that govern Project Chimera. It co
   "status": "PUBLISHED",
   "platform": "string",
   "post_id": "string",
+  "post_url": "string",
   "published_at": "ISO8601 timestamp",
   "dry_run": "boolean"
 }
