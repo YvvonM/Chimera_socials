@@ -176,10 +176,8 @@ relevance, and pass only high-scoring content to the Planner
 
 ### User_Story-011: Image Consistency Validation
 **As a** Judge Agent,
-**I need to** compare the generated image against
-the reference image using a Vision LLM
-**So that** only images where the influencer
-is recognisable are approved for publishing.
+**I need to** compare the generated image against the reference image using a Vision LLM
+**So that** only images where the influencer is recognisable are approved for publishing.
 
 **Acceptance Criteria:**
 - Must receive BOTH generated_image_url AND reference_image_url. If either is missing
