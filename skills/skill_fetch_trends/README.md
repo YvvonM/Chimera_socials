@@ -94,9 +94,7 @@ Step 2: Check cluster
 Step 3: Semantic clustering (if threshold met)
   > Tool: LLM (Gemini Flash / Claude Haiku)
   > NEVER use expensive model here
-  > Prompt: "Group these headlines into
-    topic clusters. Return the largest
-    cluster and a one-sentence summary."
+  > Prompt: "Group these headlines into topic clusters. Return the largest cluster and a one-sentence summary."
 
 Step 4: Generate Trend Alert
   > Populate output contract
@@ -118,8 +116,7 @@ Step 4: Generate Trend Alert
 
 ## Rules
 
-- NEVER use Gemini Pro or Claude Opus here.
-  Cost must be minimal.
+- NEVER use Gemini Pro or Claude Opus here. Cost must be minimal.
 - NEVER block the main pipeline. Always runs as background process.
 - NEVER generate content in this skill. It only detects. It does not create.
 - If news source is down: skip this window, log error, schedule next run normally.
