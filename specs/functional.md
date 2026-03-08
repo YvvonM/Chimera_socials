@@ -423,7 +423,7 @@ generate a DAG of tasks, and push them to the TaskQueue in Redis
 
 ---
 
-### User_Story-24: Judge Service - Sensitive Topic Override
+### User_Story-23: Judge Service - Sensitive Topic Override
 **As a** Judge Agent,
 **I need to** detect sensitive topics in every Worker output regardless of confidence_score and route them to mandatory human review
 **So that** the system never autonomously publishes dangerous,political, legal or health-related content.
@@ -438,7 +438,7 @@ generate a DAG of tasks, and push them to the TaskQueue in Redis
   > Route to HITL queue immediately
   > Human must manually approve or reject
   > System never auto-approves sensitive content
-  > Ever
+
 
 **Sensitive Categories(any match triggers HITL):**
 - Politics: political parties, elections, government criticism
@@ -453,5 +453,5 @@ Step 1 - Keyword check (no LLM, instant):
 
 Step 2 - Semantic classification (LLM):
   > If no keyword match -> send to lightweight LLM(Gemini Flash / Claude Haiku) "Does this content contain political,health, financial or legal claims?
-  > Answer YES or NO". If YES → escalate. If NO → proceed to confidence routing
+  > Answer YES or NO". If YES -> escalate. If NO -> proceed to confidence routing
 

@@ -590,7 +590,7 @@ This document defines the technical contracts that govern Project Chimera. It co
 }
 ```
 
-## CONTRACT-015: CFO Budget Check
+### CONTRACT-015: CFO Budget Check
 **Agent:** Agentic Commerce
 **Linked Story:** User_Story-19
 **Direction:** Input -> Output
@@ -634,3 +634,163 @@ This document defines the technical contracts that govern Project Chimera. It co
 ```
 
 ---
+
+### CONTRACT-016: Planner Task Generation
+**Agent:** Orchestration and Swarm Governance
+**Linked Story:** User_Story-20
+**Direction:** Input -> Output
+
+**Input:**
+```json
+
+{
+  "campaign_id": "string (required)",
+  "influencer_id": "string (required)",
+  "global_state": {
+    "goals": ["string"],
+    "budget_remaining_usdc": "float",
+    "state_version": "integer"
+  }
+}
+```
+
+**Output:**
+```json
+
+{
+  "campaign_id": "string",
+  "tasks_generated": "integer",
+  "tasks": [
+    {
+      "task_id": "string",
+      "type": "string",
+      "depends_on": ["string"],
+      "state_version": "integer",
+      "estimated_cost_usdc": "float"
+    }
+  ],
+  "pushed_to_queue": true,
+  "generated_at": "ISO8601 timestamp"
+}
+```
+
+## CONTRACT-017: Judge Confidence Routing
+**Agent:** Orchestration and Swarm Governance
+**Linked Story:** User_Story-22
+**Direction:** Input → Output
+
+**Input:**
+```json
+{
+  "task_id": "string (required)",
+  "result": "object (required)",
+  "confidence_score": "float (required)",
+  "state_version": "integer (required)",
+  "sensitive_check": "CLEAR | TRIGGERED"
+}
+```
+
+**Output (HIGH - auto approved):**
+```json
+{
+  "task_id": "string",
+  "verdict": "AUTO_APPROVED",
+  "confidence_score": "float",
+  "tier": "HIGH",
+  "committed_to_global_state": true,
+  "approved_at": "ISO8601 timestamp"
+}
+```
+
+**Output (MEDIUM - async):**
+```json
+{
+  "task_id": "string",
+  "verdict": "PENDING_HUMAN",
+  "confidence_score": "float",
+  "tier": "MEDIUM",
+  "added_to_dashboard_queue": true,
+  "other_tasks_continue": true
+}
+```
+
+**Output (LOW - rejected):**
+```json
+{
+  "task_id": "string",
+  "verdict": "REJECTED",
+  "confidence_score": "float",
+  "tier": "LOW",
+  "action": "RETRY",
+  "retry_count": "integer",
+  "max_retries": 3
+}
+```
+
+---
+
+### CONTRACT-018: Sensitive Topic Detection
+**Agent: Orchestration and Swarm Governance** 
+**Linked Story: User_Story-23** 
+**Direction:** Input -> Output
+
+**Input:**
+```json
+{
+  "task_id": "string (required)",
+  "influencer_id": "string (required)",
+  "output_content": "string (required)",
+  "confidence_score": "float (required)",
+  "output_type": "caption | reply | image_prompt
+                 | video_script | hashtags"
+}
+```
+
+**Output (SENSITIVE DETECTED — keyword):**
+```json
+{
+  "task_id": "string",
+  "sensitive_check": "TRIGGERED",
+  "detection_method": "KEYWORD",
+  "category": "POLITICS | HEALTH_ADVICE
+              | FINANCIAL_ADVICE | LEGAL_CLAIM",
+  "matched_keyword": "string",
+  "confidence_score_ignored": true,
+  "verdict": "MANDATORY_HUMAN_REVIEW",
+  "added_to_hitl_queue": true,
+  "auto_approve_blocked": true,
+  "detected_at": "ISO8601 timestamp"
+}
+```
+
+**Output (SENSITIVE DETECTED — semantic):**
+```json
+{
+  "task_id": "string",
+  "sensitive_check": "TRIGGERED",
+  "detection_method": "SEMANTIC_CLASSIFICATION",
+  "llm_used": "Gemini Flash | Claude Haiku",
+  "llm_response": "YES",
+  "category": "POLITICS | HEALTH_ADVICE
+              | FINANCIAL_ADVICE | LEGAL_CLAIM",
+  "confidence_score_ignored": true,
+  "verdict": "MANDATORY_HUMAN_REVIEW",
+  "added_to_hitl_queue": true,
+  "auto_approve_blocked": true,
+  "detected_at": "ISO8601 timestamp"
+}
+```
+
+**Output (CLEAR — proceed to confidence routing):**
+```json
+{
+  "task_id": "string",
+  "sensitive_check": "CLEAR",
+  "detection_method": "KEYWORD_THEN_SEMANTIC",
+  "keyword_check": "PASSED",
+  "semantic_check": "PASSED",
+  "llm_response": "NO",
+  "proceed_to_confidence_routing": true
+}
+```
+
