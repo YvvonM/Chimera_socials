@@ -251,7 +251,6 @@ is recognisable are approved for publishing.
 - Must NEVER reply to P4 (spam) comments
 
 ---
-
 ### User_Story-015: Pre-Publication Safety Gate
 **As a** Judge Agent,
 **I need to** review and approve every reply before the reply is sent/posted and execution finalises
@@ -278,4 +277,183 @@ is recognisable are approved for publishing.
 - Political topics
 - Verified or high-profile accounts
 - Impersonation claims
+
+---
+## FR 5.0 - Agentic Commerce
+### User_Story-16: Wallet Initialisation
+**As a** Planner Agent,
+**I need to** verify that the influencer has a valid non-custodial wallet assigned at startup
+**So that** no financial workflow begins without a confirmed wallet address.
+
+**Acceptance Criteria:**
+- Wallet check happens ONCE at agent startup before any workflow begins
+- Private key MUST be loaded from secrets manager (AWS Secrets Manager / HashiCorp Vault)
+- Private key is NEVER:
+  > Hardcoded in code
+  > Written to any log file
+  > Exposed in any output or error message
+- If wallet is missing -> throw WalletInitialisationException and halt
+- If secrets manager is unreachable -> halt startup, alert human immediately
+- Wallet address is stored in memory only. Never persisted to database
+
+### User_Story-17: Pre-Workflow Balance Check
+**As a** Planner Agent,
+**I need to** call get_balance via Coinbase AgentKit BEFORE starting any cost-incurring workflow
+**So that** the system never begins work it cannot afford to complete.
+
+**Acceptance Criteria:**
+- get_balance is called BEFORE every workflow that will cost money, no exceptions
+- If balance is insufficient for estimated cost -> cancel workflow immediately
+- If balance check fails (API down) -> cancel workflow, alert human
+- Estimated cost must be calculated BEFORE the balance check — not after
+- Planner must log balance check result to PostgreSQL every time it runs
+- Never spawn a single Worker before balance is confirmed sufficient
+
+### User_Story-18: Autonomous Transaction Execution
+**As a** Worker Agent,
+**I need to** propose and execute on-chain transactions via Coinbase AgentKit tools
+**So that** the influencer can participate autonomously in the economy.
+
+**Acceptance Criteria:**
+- Worker PROPOSES the transaction first. Never executes without CFO approval
+- Three supported transaction types:
+  > native_transfer: send ETH/USDC to wallet
+  > deploy_token: deploy ERC-20 token
+  > get_balance: check current balance
+- Transaction proposal must go to CFO Agent BEFORE any on-chain action
+- If CFO APPROVES -> execute transaction
+- If CFO REJECTS -> cancel, log reason
+- If transaction fails on-chain -> retry once then escalate to human
+- Transaction hash must be logged to PostgreSQL AND on-chain ledger
+- Private key NEVER appears in transaction payload or logs
+
+---
+
+### User_Story-19: CFO Budget Governance
+**As a** CFO Agent (specialised Judge),
+**I need to** review every transaction proposal from the Worker and enforce strict budget limits
+**So that** the system never loses money through runaway spending or suspicious transactions.
+
+**Acceptance Criteria:**
+- CFO reviews EVERY transaction. No transaction bypasses this check ever
+- Must enforce daily spend limit(default: max $50 USDC per day)
+- Daily spend is tracked atomically in Redis
+- Approval logic:
+  > IF daily_spend + amount > MAX_DAILY_LIMIT -> REJECT immediately
+  > IF transaction matches suspicious pattern -> REJECT and flag for human
+  > IF amount is within limits and normal -> APPROVE
+- After every APPROVED transaction  -> atomically update daily_spend in Redis
+- REJECTED transactions are never retried. They go straight to human review
+- CFO must respond within 3 seconds
+- Every decision logged to PostgreSQL with full reasoning
+
+**Suspicious Pattern Triggers(auto-reject and escalate):**
+- Single transaction exceeds $20 USDC
+- More than 5 transactions in 10 minutes
+- Transaction to an unknown wallet address
+- deploy_token called without campaign approval
+- Any transaction while daily limit is exceeded
+
+---
+
+## FR 6.0 - Orchestration and Swarm Governance
+### User_Story-20: Planner Service - Task Generation
+**As a** Planner Agent,
+**I need to** continuously read the GlobalState,
+generate a DAG of tasks, and push them to the TaskQueue in Redis
+**So that** Workers always have clearly defined work to execute.
+
+**Acceptance Criteria:**
+- Must read GlobalState continuously(polling interval: configurable, default 30s)
+- Must generate a DAG before pushing any tasks (defines task order and dependencies)
+- Tasks pushed to TaskQueue (Redis) individually
+- Dependent tasks are only pushed AFTER their parent task is APPROVED by Judge
+- If GlobalState is unreachable -> pause task generation, alert human
+- If TaskQueue is full -> wait and retry, never drop tasks
+- Every task must contain full context so Worker never needs to fetch anything else
+- Planner must check get_balance before pushing any cost-incurring task
+
+---
+
+### User_Story-21: Worker Service - Stateless Task Execution
+**As a** Worker Agent,
+**I need to** pop one task from the TaskQueue, execute it, attach a confidence score and push the result to the ReviewQueue
+**So that** the Judge has everything it needs to make an approval decision.
+
+**Acceptance Criteria:**
+- Worker pops EXACTLY ONE task at a time
+- Worker is completely stateless. All context comes from the task payload
+- Worker NEVER communicates with other Workers
+- Every output MUST include confidence_score between 0.0 and 1.0
+- confidence_score is derived from the LLM's own probability estimation of quality and safety
+- Result is pushed to ReviewQueue (Redis) immediately after completion
+- If task execution fails -> push FAILED status to ReviewQueue(never silently drop a task)
+- Worker spins down after completing one task(stateless, ephemeral by design)
+
+---
+
+### User_Story-22: Judge Service - Confidence-Based Routing
+**As a** Judge Agent,
+**I need to** poll the ReviewQueue and route every Worker result based on its confidence_score
+**So that** high quality work publishes instantly, medium quality waits for human approval, and low quality is retried automatically.
+
+**Acceptance Criteria:**
+- Judge polls ReviewQueue continuously
+- Every result MUST be routed by confidence_score:
+
+  > HIGH (above 0.90):
+   > AUTO-APPROVE immediately
+   > Commit to GlobalState
+   > No human needed
+
+  > MEDIUM (0.70 to 0.90):
+   > ASYNC APPROVAL
+   > Pause this specific task
+   > Add to Orchestrator Dashboard queue
+   > Agent continues other tasks
+   > Waits for human to click Approve
+   > Never block other tasks while waiting
+
+  > LOW (below 0.70):
+   > AUTO-REJECT
+   > Instruct Planner to retry
+   > Planner refines prompt and re-queues
+   > Max 3 retries before escalating to human
+
+- Sensitive content overrides ALL tiers(see User_Story-24)
+- Every routing decision logged to PostgreSQL with confidence_score and reason
+
+---
+
+### User_Story-24: Judge Service - Sensitive Topic Override
+**As a** Judge Agent,
+**I need to** detect sensitive topics in every Worker output regardless of confidence_score and route them to mandatory human review
+**So that** the system never autonomously publishes dangerous,political, legal or health-related content.
+
+**Acceptance Criteria:**
+- Sensitive check runs on EVERY output BEFORE confidence_score routing
+- Sensitive check uses BOTH:
+  > Keyword matching (fast, cheap)
+  > Semantic classification LLM(catches non-obvious cases)
+- If sensitive content detected: 
+  > IGNORE confidence_score entirely
+  > Route to HITL queue immediately
+  > Human must manually approve or reject
+  > System never auto-approves sensitive content
+  > Ever
+
+**Sensitive Categories(any match triggers HITL):**
+- Politics: political parties, elections, government criticism
+- Health Advice: medical claims, diagnosis, treatment recommendations
+- Financial Advice: investment tips, price predictions, "guaranteed returns"
+- Legal Claims: defamation, copyright, legal threats, liability statements
+
+**Detection Method:**
+Step 1 - Keyword check (no LLM, instant):
+  > Scan for known sensitive keywords
+  > If match found -> immediately escalate(do not proceed to Step 2)
+
+Step 2 - Semantic classification (LLM):
+  > If no keyword match -> send to lightweight LLM(Gemini Flash / Claude Haiku) "Does this content contain political,health, financial or legal claims?
+  > Answer YES or NO". If YES → escalate. If NO → proceed to confidence routing
 
