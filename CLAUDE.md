@@ -1,7 +1,7 @@
 # Project Chimera - AI Agent Rules
 
 ## Project Context
-This is Project Chimera - an autonomous AI influencer platform built in Java 21+. Read specs/ before doing anything.
+This is Project Chimera - an autonomous AI influencers' platform built in Java 21+. Read specs/ before doing anything.
 
 ## Prime Directive
 NEVER generate code without checking specs/ first.

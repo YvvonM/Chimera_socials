@@ -53,7 +53,7 @@ Trend Spotter Worker -> Every 4 hours (background process) -> skill_fetch_trends
 **Output (NO TREND):**
 ```json
 {
-  "skill_id": "SKILL-001",
+  "skill_id": "SKILL-002",
   "influencer_id": "string",
   "status": "NO_TREND_DETECTED",
   "headlines_collected": "integer",
@@ -65,7 +65,7 @@ Trend Spotter Worker -> Every 4 hours (background process) -> skill_fetch_trends
 **Output (ERROR):**
 ```json
 {
-  "skill_id": "SKILL-001",
+  "skill_id": "SKILL-002",
   "influencer_id": "string",
   "status": "FAILED",
   "error": "NewsSourceUnavailable

@@ -63,7 +63,7 @@ Judge -> AUTO_APPROVED or HUMAN_APPROVED -> skill_post_content -> MCP Tool fires
 **Output (DRY RUN):**
 ```json
 {
-  "skill_id": "SKILL-003",
+  "skill_id": "SKILL-001",
   "task_id": "string",
   "status": "DRY_RUN_SIMULATED",
   "platform": "string",
@@ -75,7 +75,7 @@ Judge -> AUTO_APPROVED or HUMAN_APPROVED -> skill_post_content -> MCP Tool fires
 **Output (FAILURE):**
 ```json
 {
-  "skill_id": "SKILL-003",
+  "skill_id": "SKILL-001",
   "task_id": "string",
   "status": "FAILED",
   "error": "MCPToolUnavailable | RateLimitExceeded
